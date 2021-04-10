@@ -114,7 +114,7 @@ Can always be accessed like `python3 -m reorder_editable`, if your python local 
 ```
 Usage: reorder_editable [OPTIONS] COMMAND [ARGS]...
 
-  Manage your editable namespace packages - your easy-install.pth file
+  Manage your editable packages - your easy-install.pth file
 
 Options:
   --help  Show this message and exit.
@@ -122,6 +122,7 @@ Options:
 Commands:
   cat      print easy-install.pth contents
   check    check easy-install.pth
+  locate   print easy-install.pth file location
   reorder  reorder easy-install.pth
 ```
 

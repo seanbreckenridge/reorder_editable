@@ -28,8 +28,17 @@ def absdirs(positionals: Sequence[str]) -> List[str]:
 @click.group()
 def main() -> None:
     """
-    Manage your editable namespace packages - your easy-install.pth file
+    Manage your editable packages - your easy-install.pth file
     """
+
+def _resolve_editable() -> str:
+    """
+    Find the default easy-install.pth. Exits if a file couldn't be found
+    """
+    editable_pth: Optional[str] = Editable.locate_editable()
+    if editable_pth is None:
+        raise ReorderEditableError("Could not locate easy-install.pth")
+    return editable_pth
 
 
 def _print_editable_contents(
@@ -42,7 +51,7 @@ def _print_editable_contents(
     if chosen_editable is not None:
         editable_pth = chosen_editable
     else:
-        editable_pth = Editable().location
+        editable_pth = _resolve_editable()
     with open(editable_pth, "r") as src:
         click.echo(src.read(), nl=False, err=stderr)
 
@@ -54,6 +63,18 @@ def cat() -> None:
     """
     try:
         _print_editable_contents()
+    except ReorderEditableError as err:
+        click.echo(str(err), err=True)
+        sys.exit(1)
+
+
+@main.command(short_help="print easy-install.pth file location")
+def locate() -> None:
+    """
+    Try to find the easy-install.pth file, and print the location
+    """
+    try:
+        click.echo(_resolve_editable())
     except ReorderEditableError as err:
         click.echo(str(err), err=True)
         sys.exit(1)
