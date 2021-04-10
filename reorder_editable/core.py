@@ -121,6 +121,7 @@ class Editable:
 
         # add anything in expected, in the order the user specified
         for path in expected:
+            assert path in lines_set
             result.append(path)
 
         # sanity check
