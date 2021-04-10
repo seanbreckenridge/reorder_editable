@@ -32,7 +32,7 @@ class Editable:
         # iterated through all the items in the easy-install.pth file
         # but 'i' didn't reach the end of the list of expected items
         left = self.find_unordered(expected)
-        if left:
+        if len(left) > 0:
             raise ReorderEditableError(
                 f"Reached the end of the easy-install.pth, but did not encounter '{left}' in the correct order"
             )
@@ -114,7 +114,8 @@ class Editable:
 
         result: List[str] = []
 
-        # add anything in lines but not in expected
+        # if an item isn't mentioned in expected, leave it in the same
+        # order -- extract all items not mentioned
         for path in lines:
             if path not in expected_set:
                 result.append(path)
@@ -126,9 +127,6 @@ class Editable:
 
         # sanity check
         assert len(result) == len(lines)
-
-        # if an item isn't mentioned in expected, leave it in the same
-        # order -- extract all items not mentioned
 
         return True, result
 
