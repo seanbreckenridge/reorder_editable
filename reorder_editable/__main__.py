@@ -5,7 +5,7 @@ from types import FunctionType
 
 import click
 
-from .core import EasyInstallFile, ReorderEasyInstallError
+from .core import Editable, ReorderEditableError
 
 
 def _validate_positionals(pos: Sequence[str]) -> List[str]:
@@ -24,21 +24,24 @@ def _validate_positionals(pos: Sequence[str]) -> List[str]:
 
 @click.group()
 def main() -> None:
+    """
+    Manage your editable namespace packages - your easy-install.pth file
+    """
     pass
 
 
-def _print_easy_install_contents(stderr: bool = False) -> None:
-    click.echo(EasyInstallFile().location.read_text(), nl=False, err=stderr)
+def _print_editable_contents(stderr: bool = False) -> None:
+    click.echo(Editable().location.read_text(), nl=False, err=stderr)
 
 
-@main.command()
+@main.command(short_help="print easy-install.pth contents")
 def cat() -> None:
     """
     Locate and print the contents of your easy-install.pth
     """
     try:
-        _print_easy_install_contents()
-    except ReorderEasyInstallError as e:
+        _print_editable_contents()
+    except ReorderEditableError as e:
         click.echo(str(e), err=True)
         sys.exit(1)
 
@@ -75,17 +78,17 @@ def check(ei: Optional[str], directory: Sequence[str]) -> None:
 
     \b
     e.g.
-    reorder_easy_install ./path/to/repo /another/path/to/repo
+    reorder_editable ./path/to/repo /another/path/to/repo
 
     In this case, ./path/to/repo should be above ./another/path/to/repo
     in your easy-install.pth file
     """
     dirs = _validate_positionals(directory)
     try:
-        EasyInstallFile(ei).is_ordered(_validate_positionals(directory))
-    except ReorderEasyInstallError as exc:
+        Editable(ei).assert_ordered(dirs)
+    except ReorderEditableError as exc:
         click.echo("Error: " + str(exc))
-        _print_easy_install_contents(stderr=True)
+        _print_editable_contents(stderr=True)
         sys.exit(1)
 
 
@@ -93,8 +96,13 @@ def check(ei: Optional[str], directory: Sequence[str]) -> None:
 @shared
 def reorder(ei: Optional[str], directory: Sequence[str]) -> None:
     dirs = _validate_positionals(directory)
-    exc = EasyInstallFile(ei).is_ordered(_validate_positionals(directory))
+    try:
+        Editable(ei).reorder(dirs)
+    except ReorderEditableError as exc:
+        click.echo("Error: " + str(exc))
+        _print_editable_contents(stderr=True)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
-    main(prog_name="reorder_easy_install")
+    main(prog_name="reorder_editable")

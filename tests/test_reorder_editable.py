@@ -1,5 +1,5 @@
 import pytest
-import reorder_easy_install
+import reorder_editable
 
 
 def test_basic():

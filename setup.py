@@ -4,11 +4,11 @@ from setuptools import setup, find_packages
 long_description = Path("README.md").read_text()
 reqs = Path("requirements.txt").read_text().strip().splitlines()
 
-pkg = "reorder_easy_install"
+pkg = "reorder_editable"
 setup(
     name=pkg,
     version="0.1.0",
-    url="https://github.com/seanbreckenridge/reorder_easy_install",
+    url="https://github.com/seanbreckenridge/reorder_editable",
     author="Sean Breckenridge",
     author_email="seanbrecke@gmail.com",
     description=("""naive implementation to reorder my easy-install.pth file"""),
@@ -21,7 +21,7 @@ setup(
     zip_safe=False,
     keywords="",
     entry_points={
-        "console_scripts": ["reorder_easy_install = reorder_easy_install.__main__:main"]
+        "console_scripts": ["reorder_editable = reorder_editable.__main__:main"]
     },
     extras_require={
         "testing": [
