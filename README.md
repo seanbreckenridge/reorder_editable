@@ -8,7 +8,7 @@ This script re-orders packages I specify my `easy-install.pth` to some expected 
 
 To expand:
 
-- Editable: A package that is installed in editable mode (like `pip install -e`), i.e. if you make any changes to the code, your changes are reflected immediately. Is useful for packages that you change very often, or while developing
+- Editable: A package that is installed in editable mode (like `pip install -e`), i.e. if you make any changes to the code, your changes are reflected immediately. Is useful for packages that you change very often, or while developing. See the [site docs](https://docs.python.org/3.8/library/site.html) for more information on how this modifies `sys.path`
 - Namespace Packages: Namespace packages let you split a package across multiple directories on disk, merging any submodules into the parent package. For more info, see [PEP420](https://www.python.org/dev/peps/pep-0420/#dynamic-path-computation)
 
 *Sidenote*: A namespace package is typically installed using `setuptools.find_namespace_packages`, instead of `setuptools.find_packages`
@@ -32,7 +32,7 @@ $ cat ~/.local/lib/python3.9/site-packages/easy-install.pth
 
 ... to link those installs to the paths you specified.
 
-However, for namespace packages in particular, the order that files appear in the `easy-install.pth` matter - as that determines which directories python searches when trying to resolve imports.
+However, for namespace packages in particular, the order that those directories appear in the `easy-install.pth` matter. Since items in `easy-install.pth` are added to `sys.path` in order, that determines the directories that python searches for packages in when trying to resolve imports.
 
 For example, given the following structure:
 
@@ -79,7 +79,7 @@ Should be noted that if you've already imported a namespace module [the `__path_
 
 Still - at least this tells me when it breaks, and fixes it for the next time python runs, so I don't have to worry about it/do it manually.
 
-The actual code that runs in my `HPI` configuration script, so I never have to think about this again:
+The actual hack that runs in my `HPI` configuration script, so I never have to think about this again:
 
 ```python
 def repo(name: str) -> str:
