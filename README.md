@@ -1,0 +1,100 @@
+# reorder_easy_install
+
+Naive implementation to reorder my `easy-install.pth` file
+
+This script re-orders packages I specify my `easy-install.pth` to some expected order. Is meant to be used to make sure editable namespace packages in python are in an order I define.
+
+To expand:
+
+- Editable: A package that is installed in editable mode, i.e. if you make any changes to the code, your changes are reflected immediately. Is useful for packages that you change very often, or while developing
+- Namespace Packages: Namespace packages let you split a package across multiple directories on disk, merging any submodules into the parent package. For more info, see [PEP420](https://www.python.org/dev/peps/pep-0420/#dynamic-path-computation)
+
+So, an editable, namespace package is multiple directories on disk all installed as a single package. If any changes are made to any of the directories, the package updates immediately.
+
+This is the current strategy [HPI](https://github.com/karlicoss/HPI) uses for extension. I can keep up to date with [upstream](https://github.com/karlicoss/HPI) and manage [my own modules](https://github.com/seanbreckenridge/HPI) by installing both (or more) like:
+
+```
+pip install -e /local/clone/of/karlicoss/HPI
+pip install -e /local/clone/of/seanbreckenridge/HPI
+```
+
+This creates a file in your python installation that looks like this:
+
+```bash
+$ cat ~/.local/lib/python3.9/site-packages/easy-install.pth
+/home/sean/Repos/karlicoss/HPI
+/home/sean/Repos/HPI
+```
+
+... to link those installs to the paths you specified.
+
+However, for namespace packages in particular, the order that files appear in the `easy-install.pth` matter - as that determines which directories python searches when trying to resolve imports.
+
+For example, given the following structure:
+
+```
+.
+├── my_HPI
+│   ├── package_name
+│   │   ├── a.py
+│   │   └── b.py
+│   └── setup.py
+└── upstream_HPI
+    ├── package_name
+    │   ├── a.py
+    │   └── c.py
+    └── setup.py
+```
+
+If `easy-install.pth` was ordered:
+
+```
+my_HPI
+upstream_HPI
+```
+
+`import package_name.a` would import `my_HPI/a.py`, instead of `upstream_HPI/a.py`
+
+This is pretty much a native plugin system, as it lets me overlay specific files/modules with personal changes in my directory structure, while keeping up to date with the upstream changes. Theres very little overhead since all I'm doing is adding python files to a local directory and the globally installed package immediately updates. I can still import `package_name.b` and `package_name.c` as normal, even though they're in different directory structures.
+
+Now - to the problem this aims to solve.
+
+There is no way to manage your `easy-install.pth` file, to make sure packages are in a defined order.
+
+In particular, I want [my repository](https://github.com/seanbreckenridge/HPI) to be above [my fork of the upstream repo](https://github.com/seanbreckenridge/HPI-fork), as that means I'm able to override files from upstream with my own changes, while maintaining two separate directories - which prevents me from running into merge conflicts. While developing, I may end up uninstalling/reinstalling one or more of my local clones of `HPI` namespace packages, and that leads to it resolving to a file from the upstream repository, when I was expecting my own -- leading to confusing and difficult to debug errors
+
+The script itself is pretty basic. All `easy-install.pth` is lines of absolute paths pointing to directories, so this just takes the directories you pass as positional arguments and makes sure they're in that order in your `easy-install.pth` file by shuffling it around.
+
+I don't believe this breaks and built-in python/pip behaviour, but please open a PR/Issue if you think theres an issue/this could be improved.
+
+Should be noted that if you've already imported a namespace module [the `__path__` is cached](https://www.python.org/dev/peps/pep-0420/#rationale) (which determines the import order), so this (probably?) won't work if you re-order the `easy-install.pth` file after the module has already been loaded -- it won't work for that run of python/unless you re-import it by messing with `sys.modules` and re-import the library
+
+Still - at least this tells me when it breaks, and fixes it for the next time python runs, so I don't have to worry about it/do it manually.
+
+## Installation
+
+Requires `python3.6+`
+
+To install with pip, run:
+
+    python3 -m pip install git+https://github.com/seanbreckenridge/reorder_easy_install
+
+Note: This package **shouldn't** be installed as an editable package. This works by using the path of the installed file to locate your `site-packages`, and therefore `easy-install.pth` file, to avoid additional complexities of python installations. So; installing this as an editable package means it can't do that.
+
+I'd recommend calling this like `python3 -m reorder_easy_install` or perhaps even `/usr/bin/python3 -m reorder_easy_install` if you often work in venvs
+
+## Usage
+
+```
+
+```
+
+### Tests
+
+```bash
+git clone 'https://github.com/seanbreckenridge/reorder_easy_install'
+cd ./reorder_easy_install
+pip install '.[testing]'
+mypy ./reorder_easy_install
+pytest
+```
