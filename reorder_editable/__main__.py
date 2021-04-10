@@ -36,7 +36,7 @@ def _print_editable_contents(
     stderr: bool = False, chosen_editable: Optional[str] = None
 ) -> None:
     """
-    Opens the editable file directly and
+    Opens the editable file directly and prints its contents
     """
     editable_pth: str
     if chosen_editable is not None:
