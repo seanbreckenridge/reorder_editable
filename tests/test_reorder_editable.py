@@ -1,7 +1,7 @@
 import pytest
 import reorder_editable
 
-# need to actualy add tests
+# need to actually add tests
 def test():
     assert True
 
