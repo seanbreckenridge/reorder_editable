@@ -1,2 +1,0 @@
-class ReorderEasyInstallError(FileNotFoundError):
-    pass

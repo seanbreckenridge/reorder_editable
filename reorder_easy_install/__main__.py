@@ -5,8 +5,7 @@ from types import FunctionType
 
 import click
 
-from . import EasyInstallFile
-from .common import ReorderEasyInstallError
+from .core import EasyInstallFile, ReorderEasyInstallError
 
 
 def _validate_positionals(pos: Sequence[str]) -> List[str]:
@@ -68,12 +67,11 @@ def shared(func: Callable[..., None]) -> Callable[..., None]:
 @shared
 def check(ei: Optional[str], directory: Sequence[str]) -> None:
     """
-    If the order specified in your easy-instal.pth doesn't match
+    If the order specified in your easy-install.pth doesn't match
     the location of the directories specified as positional arguments,
     exit with a non-zero exit code
 
-    Also fails if one of the paths you provide doesn't exist,
-    or it doesn't exist in the easy-install.pth file
+    Also fails if one of the paths you provide doesn't exist
 
     \b
     e.g.
@@ -83,12 +81,12 @@ def check(ei: Optional[str], directory: Sequence[str]) -> None:
     in your easy-install.pth file
     """
     dirs = _validate_positionals(directory)
-    exc = EasyInstallFile(ei).is_ordered(_validate_positionals(directory))
-    if exc is None:  # no exception, success!
-        return
-    click.echo("Error: " + str(exc))
-    _print_easy_install_contents(stderr=True)
-    sys.exit(1)
+    try:
+        EasyInstallFile(ei).is_ordered(_validate_positionals(directory))
+    except ReorderEasyInstallError as exc:
+        click.echo("Error: " + str(exc))
+        _print_easy_install_contents(stderr=True)
+        sys.exit(1)
 
 
 @main.command()
