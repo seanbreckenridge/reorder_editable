@@ -1,4 +1,4 @@
-import warnings
+import site
 from pathlib import Path
 from typing import Optional, List, Tuple
 
@@ -132,25 +132,12 @@ class Editable:
 
         return True, result
 
-    # Hmm.. is there some reason to use the 'site' module to try
-    # and inspect the globally defined site-packages directories
-    # for a possible easy-install.pth file?
-    # you probably wouldn't have installed a package there nor
-    # have permission to edit that without sudo, which is not
-    # what this is for
-    # see https://stackoverflow.com/a/46071447/9348376
-
     @staticmethod
     def locate_editable() -> Optional[Path]:
         """"""
         # try to find an editable install path in the user site-packages
-        p = Path(__file__)
-        site_packages_dir = p.parent.parent
-        if site_packages_dir.name != "site-packages":
-            warnings.warn(
-                f"Warning: expected '{site_packages_dir}' to be named 'site-packages'",
-            )
-        editable_packages = site_packages_dir / "easy-install.pth"
+        site_packages_dir = site.getusersitepackages()
+        editable_packages = Path(site_packages_dir) / "easy-install.pth"
         if not editable_packages.exists():
             return None
         return editable_packages

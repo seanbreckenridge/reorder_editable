@@ -107,9 +107,7 @@ To install with pip, run:
 
     python3 -m pip install git+https://github.com/seanbreckenridge/reorder_editable
 
-Note: This package **shouldn't** be installed as an editable package. This works by using the path of the installed file to locate your `site-packages`, and therefore `easy-install.pth` file, to avoid additional complexities of python installations. So; installing this as an editable package means it can't do that.
-
-I'd recommend calling this like `python3 -m reorder_editable` or perhaps even `/usr/bin/python3 -m reorder_editable` if you often work in venvs
+Can always be accessed like `python -m reorder_editable`, if your python local bin directory isn't on your `$PATH`
 
 ## Usage
 
