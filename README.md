@@ -82,17 +82,20 @@ Still - at least this tells me when it breaks, and fixes it for the next time py
 The actual code that runs in my `HPI` configuration script, so I never have to think about this again:
 
 ```python
-import sys
-from os import environ, path
-
 def repo(name: str) -> str:
     return path.join(environ["REPOS"], name)
 
+
+# https://github.com/seanbreckenridge/reorder_editable
 # if my easy-install.pth file was ordered wrong, fix it and exit!
 from reorder_editable import Editable
+
 if Editable().reorder([repo("HPI"), repo("HPI-fork")]):
     # this is true if we actually reordered the path, else path was already ordered
-    print("easy-install.pth was ordered wrong! It has been reordered, exiting to apply changes...", file=sys.stderr)
+    print(
+        "easy-install.pth was ordered wrong! It has been reordered, exiting to apply changes...",
+        file=sys.stderr,
+    )
     sys.exit(0)
 ```
 
