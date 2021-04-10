@@ -1,3 +1,7 @@
+"""
+CLI code, which allows the user to pass relative or absolute paths
+"""
+
 import os
 import sys
 from typing import Sequence, List, Callable, Optional
@@ -7,13 +11,13 @@ import click
 from .core import Editable, ReorderEditableError
 
 
-def absdirs(pos: Sequence[str]) -> List[str]:
+def absdirs(positionals: Sequence[str]) -> List[str]:
     """
     Convert all paths to abolsute paths, and make sure they all exist
     """
     res = []
-    for p in pos:
-        absfile = os.path.abspath(os.path.expanduser(p))
+    for pos in positionals:
+        absfile = os.path.abspath(os.path.expanduser(pos))
         if not os.path.exists(absfile):
             click.echo(f"{absfile} does not exist", err=True)
             sys.exit(1)
@@ -26,11 +30,21 @@ def main() -> None:
     """
     Manage your editable namespace packages - your easy-install.pth file
     """
-    pass
 
 
-def _print_editable_contents(stderr: bool = False) -> None:
-    click.echo(Editable().location.read_text(), nl=False, err=stderr)
+def _print_editable_contents(
+    stderr: bool = False, chosen_editable: Optional[str] = None
+) -> None:
+    """
+    Opens the editable file directly and
+    """
+    editable_pth: str
+    if chosen_editable is not None:
+        editable_pth = chosen_editable
+    else:
+        editable_pth = Editable().location
+    with open(editable_pth, "r") as src:
+        click.echo(src.read(), nl=False, err=stderr)
 
 
 @main.command(short_help="print easy-install.pth contents")
@@ -40,8 +54,8 @@ def cat() -> None:
     """
     try:
         _print_editable_contents()
-    except ReorderEditableError as e:
-        click.echo(str(e), err=True)
+    except ReorderEditableError as err:
+        click.echo(str(err), err=True)
         sys.exit(1)
 
 
@@ -50,7 +64,7 @@ SHARED = [
     click.option(
         "-e",
         "--easy-install-location",
-        "ei",
+        "editable_pth",
         default=None,
         help="Manually provide path to easy-install.pth",
     ),
@@ -58,16 +72,18 @@ SHARED = [
 ]
 
 
-# decorator to apply arguments
 def shared(func: Callable[..., None]) -> Callable[..., None]:
-    for s in SHARED:
-        func = s(func)
+    """
+    Decorator to apply shared arguments to reorder/check
+    """
+    for decorator in SHARED:
+        func = decorator(func)
     return func
 
 
 @main.command(short_help="check easy-install.pth")
 @shared
-def check(ei: Optional[str], directory: Sequence[str]) -> None:
+def check(editable_pth: Optional[str], directory: Sequence[str]) -> None:
     """
     If the order specified in your easy-install.pth doesn't match
     the order of the directories specified as positional arguments,
@@ -84,16 +100,16 @@ def check(ei: Optional[str], directory: Sequence[str]) -> None:
     """
     dirs = absdirs(directory)
     try:
-        Editable(ei).assert_ordered(dirs)
+        Editable(location=editable_pth).assert_ordered(dirs)
     except ReorderEditableError as exc:
         click.echo("Error: " + str(exc))
-        _print_editable_contents(stderr=True)
+        _print_editable_contents(stderr=True, chosen_editable=editable_pth)
         sys.exit(1)
 
 
 @main.command(short_help="reorder easy-install.pth")
 @shared
-def reorder(ei: Optional[str], directory: Sequence[str]) -> None:
+def reorder(editable_pth: Optional[str], directory: Sequence[str]) -> None:
     """
     If the order specified in your easy-install.pth doesn't match
     the order of the directories specified as positional arguments,
@@ -114,10 +130,10 @@ def reorder(ei: Optional[str], directory: Sequence[str]) -> None:
     """
     dirs = absdirs(directory)
     try:
-        Editable(ei).reorder(dirs)
+        Editable(location=editable_pth).reorder(dirs)
     except ReorderEditableError as exc:
         click.echo("Error: " + str(exc))
-        _print_editable_contents(stderr=True)
+        _print_editable_contents(stderr=True, chosen_editable=editable_pth)
         sys.exit(1)
 
 

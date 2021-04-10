@@ -1,1 +1,1 @@
-from .core import Editable
+from .core import Editable, ReorderEditableError

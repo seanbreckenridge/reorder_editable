@@ -1,34 +1,69 @@
+"""
+Core functionality, reads/writes to the editable and checks if order matches what the user specifies
+"""
+
+import os
 import site
-from pathlib import Path
 from typing import Optional, List, Tuple
 
 
 class ReorderEditableError(FileNotFoundError):
+    """ReorderEditable related errors"""
+
     pass
 
 
 class Editable:
+    """
+    Encapsulates all possible interaction with the easy-install.pth file
+    """
+
     def __init__(self, location: Optional[str] = None):
+        """
+        can optionally pass a location, to prevent the locate_editable editable call
+        """
         if location is None:
-            ei = self.__class__.locate_editable()
-            if ei is not None:
-                self.location = Path(ei)
+            found_editable = self.__class__.locate_editable()
+            if found_editable is not None:
+                self.location = found_editable
             else:
                 raise ReorderEditableError("Could not locate easy-install.pth")
         else:
-            self.location = Path(location)
+            self.location = location
 
-        assert (
-            self.location.exists()
+        assert os.path.exists(
+            self.location
         ), f"The easy-install.pth file at '{self.location}' doesn't exist"
         self.lines: List[str] = self.read_lines()
 
     def read_lines(self) -> List[str]:
-        self.lines = self.location.read_text().splitlines()
+        """
+        Read lines from the editable path file
+
+        splitlines removes newlines from the end of each line
+        """
+        with open(self.location, "r") as src:
+            self.lines = src.read().splitlines()
         return self.lines
 
-    # returns None on success, an Error if the file is not ordered correctly
+    def write_lines(self, new_lines: List[str]) -> None:
+        """
+        Write lines back to the editable path file
+
+        new_lines is a list of absolute paths, so for the format of
+        the file to be the same, add newlines on each write
+        """
+        with open(self.location, "w") as target:
+            for line in new_lines:
+                target.write(f"{line}\n")
+
     def assert_ordered(self, expected: List[str]) -> None:
+        """
+        returns None on success, an Error if the file is not ordered correctly given 'expected'
+
+        expected should be a list of absolute paths, in the order you expect to see
+        them in the easy-install.pth
+        """
         # iterated through all the items in the easy-install.pth file
         # but 'i' didn't reach the end of the list of expected items
         left = self.find_unordered(expected)
@@ -39,14 +74,11 @@ class Editable:
 
     def find_unordered(self, expected: List[str]) -> List[str]:
         """
-        Given a list of files in an expected order, compares that against
+        Given a list of absolute paths in an expected order, compares that against
         the read order from the easy-install.pth file
 
         Returns any items not found in the correct order by the
         time it reaches the end of the easy-install.pth
-
-        expected should be the absolute path of directories
-        provided by the user
         """
         return self.__class__.find_unordered_pure(self.lines, expected)
 
@@ -79,20 +111,15 @@ class Editable:
         Return value is True if the file was edited, False
         if it didn't need to be edited.
         """
-        do_reorder, new_lines = self.reorder_mem(expected)
+        do_reorder, new_lines = self.__class__.reorder_pure(self.lines, expected)
         if do_reorder is False:
             return False
         # write new_lines to file
-        with open(self.location, "w") as ef:
-            for line in new_lines:
-                ef.write(f"{line}\n")
+        self.write_lines(new_lines)
         return True
 
-    def reorder_mem(self, expected: List[str]) -> Tuple[bool, List[str]]:
-        return self.__class__.reorder_mem_pure(self.lines, expected)
-
     @classmethod
-    def reorder_mem_pure(
+    def reorder_pure(
         cls, lines: List[str], expected: List[str]
     ) -> Tuple[bool, List[str]]:
         """
@@ -100,7 +127,7 @@ class Editable:
         Returns (whether or not to edit the file, resulting changes)
         """
         unordered: List[str] = cls.find_unordered_pure(lines, expected)
-        # everything is ordered right, dont need to do anything!
+        # everything is ordered right, dont need to reorder anything!
         if len(unordered) == 0:
             return False, lines
 
@@ -131,10 +158,12 @@ class Editable:
         return True, result
 
     @staticmethod
-    def locate_editable() -> Optional[Path]:
-        # try to find an editable install path in the user site-packages
+    def locate_editable() -> Optional[str]:
+        """
+        try to find an editable install path in the user site-packages
+        """
         site_packages_dir = site.getusersitepackages()
-        editable_packages = Path(site_packages_dir) / "easy-install.pth"
-        if not editable_packages.exists():
+        editable_pth = os.path.join(site_packages_dir, "easy-install.pth")
+        if not os.path.exists(editable_pth):
             return None
-        return editable_packages
+        return editable_pth
