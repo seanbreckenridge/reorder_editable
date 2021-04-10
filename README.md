@@ -107,7 +107,7 @@ To install with pip, run:
 
     python3 -m pip install git+https://github.com/seanbreckenridge/reorder_editable
 
-Can always be accessed like `python -m reorder_editable`, if your python local bin directory isn't on your `$PATH`
+Can always be accessed like `python3 -m reorder_editable`, if your python local bin directory isn't on your `$PATH`
 
 ## Usage
 
