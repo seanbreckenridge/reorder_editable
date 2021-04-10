@@ -8,7 +8,7 @@ This script re-orders packages I specify my `easy-install.pth` to some expected 
 
 To expand:
 
-- Editable: A package that is installed in editable mode, i.e. if you make any changes to the code, your changes are reflected immediately. Is useful for packages that you change very often, or while developing
+- Editable: A package that is installed in editable mode (like `pip install -e`), i.e. if you make any changes to the code, your changes are reflected immediately. Is useful for packages that you change very often, or while developing
 - Namespace Packages: Namespace packages let you split a package across multiple directories on disk, merging any submodules into the parent package. For more info, see [PEP420](https://www.python.org/dev/peps/pep-0420/#dynamic-path-computation)
 
 *Sidenote*: A namespace package is typically installed using `setuptools.find_namespace_packages`, instead of `setuptools.find_packages`
