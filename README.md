@@ -32,7 +32,7 @@ $ cat ~/.local/lib/python3.9/site-packages/easy-install.pth
 
 ... to link those installs to the paths you specified.
 
-However, for namespace packages in particular, the order that those directories appear in the `easy-install.pth` matter. Since items in `easy-install.pth` are added to `sys.path` in order, that determines the directories that python searches for packages in when trying to resolve imports.
+However, for namespace packages in particular, the order that those directories appear in the `easy-install.pth` matter. Since items in `easy-install.pth` are added to `sys.path` in order, that determines which order python searches for packages in when trying to resolve imports.
 
 For example, given the following structure:
 
