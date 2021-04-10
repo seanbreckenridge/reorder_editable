@@ -1,5 +1,5 @@
 from pathlib import Path
-from setuptools import setup, find_packages
+from setuptools import setup
 
 long_description = Path("README.md").read_text()
 reqs = Path("requirements.txt").read_text().strip().splitlines()
@@ -15,7 +15,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     license="MIT",
-    packages=find_packages(include=[pkg]),
+    packages=["reorder_editable"],
     install_requires=reqs,
     package_data={pkg: ["py.typed"]},
     zip_safe=False,

@@ -83,6 +83,9 @@ class Editable:
         if do_reorder is False:
             return False
         # write new_lines to file
+        with open(self.location, "w") as ef:
+            for line in new_lines:
+                ef.write(f"{line}\n")
         return True
 
     def reorder_mem(self, expected: List[str]) -> Tuple[bool, List[str]]:
@@ -110,6 +113,18 @@ class Editable:
             )
 
         result: List[str] = []
+
+        # add anything in lines but not in expected
+        for path in lines:
+            if path not in expected_set:
+                result.append(path)
+
+        # add anything in expected, in the order the user specified
+        for path in expected:
+            result.append(path)
+
+        # sanity check
+        assert len(result) == len(lines)
 
         # if an item isn't mentioned in expected, leave it in the same
         # order -- extract all items not mentioned

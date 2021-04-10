@@ -1,14 +1,13 @@
 import os
 import sys
 from typing import Sequence, List, Callable, Optional
-from types import FunctionType
 
 import click
 
 from .core import Editable, ReorderEditableError
 
 
-def _validate_positionals(pos: Sequence[str]) -> List[str]:
+def absdirs(pos: Sequence[str]) -> List[str]:
     """
     Convert all paths to abolsute paths, and make sure they all exist
     """
@@ -71,19 +70,19 @@ def shared(func: Callable[..., None]) -> Callable[..., None]:
 def check(ei: Optional[str], directory: Sequence[str]) -> None:
     """
     If the order specified in your easy-install.pth doesn't match
-    the location of the directories specified as positional arguments,
+    the order of the directories specified as positional arguments,
     exit with a non-zero exit code
 
     Also fails if one of the paths you provide doesn't exist
 
     \b
     e.g.
-    reorder_editable ./path/to/repo /another/path/to/repo
+    reorder_editable check ./path/to/repo /another/path/to/repo
 
     In this case, ./path/to/repo should be above ./another/path/to/repo
     in your easy-install.pth file
     """
-    dirs = _validate_positionals(directory)
+    dirs = absdirs(directory)
     try:
         Editable(ei).assert_ordered(dirs)
     except ReorderEditableError as exc:
@@ -92,10 +91,28 @@ def check(ei: Optional[str], directory: Sequence[str]) -> None:
         sys.exit(1)
 
 
-@main.command()
+@main.command(short_help="reorder easy-install.pth")
 @shared
 def reorder(ei: Optional[str], directory: Sequence[str]) -> None:
-    dirs = _validate_positionals(directory)
+    """
+    If the order specified in your easy-install.pth doesn't match
+    the order of the directories specified as positional arguments,
+    reorder them so that it does. This always places items
+    you're reordering at the end of your easy-install.pth so
+    make sure to include all items you care about the order of
+
+    Also fails if one of the paths you provide doesn't exist, or
+    it isn't already in you easy-install.pth
+
+    \b
+    e.g.
+    reorder_editable reorder ./path/to/repo /another/path/to/repo
+
+    If ./path/to/repo was below /another/path/to/repo, this would
+    reorder items in your config file to fix it so that ./path/to/repo
+    is above /another/path/to/repo
+    """
+    dirs = absdirs(directory)
     try:
         Editable(ei).reorder(dirs)
     except ReorderEditableError as exc:
