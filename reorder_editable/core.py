@@ -134,7 +134,6 @@ class Editable:
 
     @staticmethod
     def locate_editable() -> Optional[Path]:
-        """"""
         # try to find an editable install path in the user site-packages
         site_packages_dir = site.getusersitepackages()
         editable_packages = Path(site_packages_dir) / "easy-install.pth"

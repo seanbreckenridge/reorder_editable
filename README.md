@@ -11,7 +11,7 @@ To expand:
 - Editable: A package that is installed in editable mode (like `pip install -e`), i.e. if you make any changes to the code, your changes are reflected immediately. Is useful for packages that you change very often, or while developing. See the [site docs](https://docs.python.org/3.8/library/site.html) for more information on how this modifies `sys.path`
 - Namespace Packages: Namespace packages let you split a package across multiple directories on disk, merging any submodules into the parent package. For more info, see [PEP420](https://www.python.org/dev/peps/pep-0420/#dynamic-path-computation)
 
-*Sidenote*: A namespace package is typically installed using `setuptools.find_namespace_packages`, instead of `setuptools.find_packages`
+_Sidenote_: A namespace package is typically installed using `setuptools.find_namespace_packages`, instead of `setuptools.find_packages`
 
 So, an editable, namespace package is multiple directories on disk all installed as a single package. If any changes are made to any of the directories, the package updates immediately.
 
