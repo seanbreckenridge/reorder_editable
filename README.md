@@ -57,7 +57,7 @@ my_HPI
 upstream_HPI
 ```
 
-`import package_name.a` would import `my_HPI/a.py`, instead of `upstream_HPI/a.py`, because thats the first item it matched in the `easy-install.pth`. This process is described much more technically in the [PEP](https://www.python.org/dev/peps/pep-0420/#specification)
+`import package_name.a` would import `my_HPI/package_name/a.py`, instead of `upstream_HPI/package_name/a.py`, because thats the first item it matched in the `easy-install.pth`. This process is described much more technically in the [PEP](https://www.python.org/dev/peps/pep-0420/#specification)
 
 This is pretty much a native plugin system, as it lets me overlay specific files/modules with personal changes in my directory structure, while keeping up to date with the upstream changes. Theres very little overhead since all I'm doing is adding python files to a local directory and the globally installed package immediately updates.
 
