@@ -2,7 +2,7 @@
 
 Naive implementation to reorder my `easy-install.pth` file
 
-This script re-orders packages I specify my `easy-install.pth` to some expected order. It is meant to be used to make sure editable namespace packages in python are in an order I define.
+It is meant to be used to make sure editable namespace packages in my `easy-install.pth` are in a specific order.
 
 ## Editable Namespace Packages?
 
