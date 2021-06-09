@@ -25,7 +25,7 @@ def test_reorder() -> None:
 
     # write to a temporary file, reorder it
     with tempfile.NamedTemporaryFile() as tf:
-        Path(tf.name).write_text(f"{broken_contents}")
+        Path(tf.name).write_text(broken_contents)
         e = Editable(location=tf.name)
         did_reorder = e.reorder(["fixed.pth", "broken.pth"])
         assert did_reorder is True
