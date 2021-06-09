@@ -160,8 +160,6 @@ $ python3 -m reorder_editable reorder ./my_HPI ./upstream_HPI
 
 ### Tests
 
-TODO: add tests
-
 ```bash
 git clone 'https://github.com/seanbreckenridge/reorder_editable'
 cd ./reorder_editable

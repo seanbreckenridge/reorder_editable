@@ -31,6 +31,7 @@ def main() -> None:
     Manage your editable packages - your easy-install.pth file
     """
 
+
 def _resolve_editable() -> str:
     """
     Find the default easy-install.pth. Exits if a file couldn't be found
