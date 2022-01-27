@@ -101,7 +101,7 @@ if Editable().reorder([repo("HPI"), repo("HPI-fork")]):
 
 ## Installation
 
-Requires `python3.6+`
+Requires `python3.7+`
 
 To install with pip, run:
 
