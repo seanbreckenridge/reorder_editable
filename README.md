@@ -99,6 +99,8 @@ if Editable().reorder([repo("HPI"), repo("HPI-fork")]):
     sys.exit(0)
 ```
 
+Note: Either install all editable packages as `--user`, or all at the system level. Otherwise, the lines of text/packages are split across two separate `easy-install.pth` files, and its not possible to reorder.
+
 ## Installation
 
 Requires `python3.7+`
