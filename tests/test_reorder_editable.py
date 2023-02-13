@@ -17,7 +17,6 @@ fixed_contents = Path(fixed).read_text()
 
 
 def test_reorder() -> None:
-
     # test using pure function
     e = Editable(location=broken)
     lines = e.find_unordered(["fixed.pth", "broken.pth"])
