@@ -57,9 +57,9 @@ my_HPI
 upstream_HPI
 ```
 
-`import package_name.a` would import `my_HPI/package_name/a.py`, instead of `upstream_HPI/package_name/a.py`, because thats the first item it matched in the `easy-install.pth`. This process is described much more technically in the [PEP](https://www.python.org/dev/peps/pep-0420/#specification)
+`import package_name.a` would import `my_HPI/package_name/a.py`, instead of `upstream_HPI/package_name/a.py`, because that's the first item it matched in the `easy-install.pth`. This process is described much more technically in the [PEP](https://www.python.org/dev/peps/pep-0420/#specification)
 
-This is pretty much a native plugin system, as it lets me overlay specific files/modules with personal changes in my directory structure, while keeping up to date with the upstream changes. Theres very little overhead since all I'm doing is adding python files to a local directory and the globally installed package immediately updates.
+This is pretty much a native plugin system, as it lets me overlay specific files/modules with personal changes in my directory structure, while keeping up to date with the upstream changes. There's very little overhead since all I'm doing is adding python files to a local directory and the globally installed package immediately updates.
 
 In the example above, I can still import `package_name.b` and `package_name.c` as normal, even though they're in different directory structures.
 
@@ -73,7 +73,7 @@ In particular, I want [my repository](https://github.com/seanbreckenridge/HPI) t
 
 The script itself is pretty basic. All `easy-install.pth` is lines of absolute paths pointing to directories, so this just takes the directories you pass as positional arguments and makes sure they're in that order in your `easy-install.pth` file by shuffling it around.
 
-I don't believe this breaks and built-in python/pip behaviour, but please open a PR/Issue if you think theres an issue/this could be improved.
+I don't believe this breaks and built-in python/pip behaviour, but please open a PR/Issue if you think there's an issue/this could be improved.
 
 Should be noted that if you've already imported a namespace module [the `__path__` is cached](https://www.python.org/dev/peps/pep-0420/#rationale) (which determines the import order), so this (probably?) won't work if you re-order the `easy-install.pth` file after the module has already been loaded -- at least not for that python process/unless you re-import it by messing with `sys.modules` and re-import the library.
 
