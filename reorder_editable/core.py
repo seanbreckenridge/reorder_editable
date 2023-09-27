@@ -18,12 +18,12 @@ class Editable:
     Encapsulates all possible interaction with the easy-install.pth file
     """
 
-    def __init__(self, location: Optional[str] = None):
+    def __init__(self, *, location: Optional[str], use_user_site: bool = True) -> None:
         """
         can optionally pass a location, to prevent the locate_editable editable call
         """
         if location is None:
-            found_editable = self.__class__.locate_editable()
+            found_editable = self.__class__.locate_editable(use_user_site=use_user_site)
             if found_editable is not None:
                 self.location = found_editable
             else:
@@ -158,11 +158,20 @@ class Editable:
         return True, result
 
     @staticmethod
-    def locate_editable() -> Optional[str]:
+    def locate_editable(*, use_user_site: bool) -> Optional[str]:
         """
         try to find an editable install path in the user site-packages
         """
-        site_packages_dir = site.getusersitepackages()
+        if use_user_site:
+            site_packages_dir = site.getusersitepackages()
+        else:
+            system_site_packages_dirs = site.getsitepackages()
+            if len(system_site_packages_dirs) != 1:
+                raise ReorderEditableError(
+                    f'Expected exactly one package in system site, got: {system_site_packages_dirs}'
+                )
+            site_packages_dir = system_site_packages_dirs[0]
+
         editable_pth = os.path.join(site_packages_dir, "easy-install.pth")
         if not os.path.exists(editable_pth):
             return None
