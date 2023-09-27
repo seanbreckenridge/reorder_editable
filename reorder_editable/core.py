@@ -18,7 +18,7 @@ class Editable:
     Encapsulates all possible interaction with the easy-install.pth file
     """
 
-    def __init__(self, *, location: Optional[str], use_user_site: bool=True) -> None:
+    def __init__(self, *, location: Optional[str], use_user_site: bool = True) -> None:
         """
         can optionally pass a location, to prevent the locate_editable editable call
         """
