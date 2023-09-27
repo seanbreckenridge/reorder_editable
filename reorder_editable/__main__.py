@@ -32,18 +32,18 @@ def main() -> None:
     """
 
 
-def _resolve_editable() -> str:
+def _resolve_editable(*, use_user_site: bool) -> str:
     """
     Find the default easy-install.pth. Exits if a file couldn't be found
     """
-    editable_pth: Optional[str] = Editable.locate_editable()
+    editable_pth: Optional[str] = Editable.locate_editable(use_user_site=use_user_site)
     if editable_pth is None:
         raise ReorderEditableError("Could not locate easy-install.pth")
     return editable_pth
 
 
 def _print_editable_contents(
-    stderr: bool = False, chosen_editable: Optional[str] = None
+    use_user_site: bool, *, stderr: bool = False, chosen_editable: Optional[str] = None,
 ) -> None:
     """
     Opens the editable file directly and prints its contents
@@ -52,30 +52,42 @@ def _print_editable_contents(
     if chosen_editable is not None:
         editable_pth = chosen_editable
     else:
-        editable_pth = _resolve_editable()
+        editable_pth = _resolve_editable(use_user_site=use_user_site)
     with open(editable_pth, "r") as src:
         click.echo(src.read(), nl=False, err=stderr)
 
 
+site_option = click.option(
+    '--user/--system',
+    'use_user_site',
+    is_flag=True,
+    default=True,
+    show_default=True,
+    help='Pass --system to use system packages site instead of user site',
+)
+
+
 @main.command(short_help="print easy-install.pth contents")
-def cat() -> None:
+@site_option
+def cat(*, use_user_site: bool) -> None:
     """
     Locate and print the contents of your easy-install.pth
     """
     try:
-        _print_editable_contents()
+        _print_editable_contents(use_user_site=use_user_site)
     except ReorderEditableError as err:
         click.echo(str(err), err=True)
         sys.exit(1)
 
 
 @main.command(short_help="print easy-install.pth file location")
-def locate() -> None:
+@site_option
+def locate(*, use_user_site: bool) -> None:
     """
     Try to find the easy-install.pth file, and print the location
     """
     try:
-        click.echo(_resolve_editable())
+        click.echo(_resolve_editable(use_user_site=use_user_site))
     except ReorderEditableError as err:
         click.echo(str(err), err=True)
         sys.exit(1)
@@ -105,7 +117,8 @@ def shared(func: Callable[..., None]) -> Callable[..., None]:
 
 @main.command(short_help="check easy-install.pth")
 @shared
-def check(editable_pth: Optional[str], directory: Sequence[str]) -> None:
+@site_option
+def check(*, editable_pth: Optional[str], directory: Sequence[str], use_user_site: bool) -> None:
     """
     If the order specified in your easy-install.pth doesn't match
     the order of the directories specified as positional arguments,
@@ -122,16 +135,17 @@ def check(editable_pth: Optional[str], directory: Sequence[str]) -> None:
     """
     dirs = absdirs(directory)
     try:
-        Editable(location=editable_pth).assert_ordered(dirs)
+        Editable(location=editable_pth, use_user_site=use_user_site).assert_ordered(dirs)
     except ReorderEditableError as exc:
         click.echo("Error: " + str(exc))
-        _print_editable_contents(stderr=True, chosen_editable=editable_pth)
+        _print_editable_contents(stderr=True, chosen_editable=editable_pth, use_user_site=use_user_site)
         sys.exit(1)
 
 
 @main.command(short_help="reorder easy-install.pth")
 @shared
-def reorder(editable_pth: Optional[str], directory: Sequence[str]) -> None:
+@site_option
+def reorder(*, editable_pth: Optional[str], directory: Sequence[str], use_user_site: bool) -> None:
     """
     If the order specified in your easy-install.pth doesn't match
     the order of the directories specified as positional arguments,
@@ -152,10 +166,10 @@ def reorder(editable_pth: Optional[str], directory: Sequence[str]) -> None:
     """
     dirs = absdirs(directory)
     try:
-        Editable(location=editable_pth).reorder(dirs)
+        Editable(location=editable_pth, use_user_site=use_user_site).reorder(dirs)
     except ReorderEditableError as exc:
         click.echo("Error: " + str(exc))
-        _print_editable_contents(stderr=True, chosen_editable=editable_pth)
+        _print_editable_contents(stderr=True, chosen_editable=editable_pth, use_user_site=use_user_site)
         sys.exit(1)
 
 
