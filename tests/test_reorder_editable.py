@@ -3,7 +3,7 @@ from pathlib import Path
 import tempfile
 
 import pytest
-from reorder_editable.core import Editable
+from reorder_editable.core import Editable, ReorderEditableError
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -29,6 +29,16 @@ def test_reorder() -> None:
         did_reorder = e.reorder(["fixed.pth", "broken.pth"])
         assert did_reorder is True
         assert Path(tf.name).read_text().strip() == fixed_contents.strip()
+
+
+def test_editable_works_with_no_argss() -> None:
+    # regression test
+    # is fine if this raises a ReorderEditableError,
+    # just dont want it to TypeError
+    try:
+        Editable()
+    except ReorderEditableError:
+        pass
 
 
 if __name__ == "__main__":
