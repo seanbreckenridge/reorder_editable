@@ -43,7 +43,10 @@ def _resolve_editable(*, use_user_site: bool) -> str:
 
 
 def _print_editable_contents(
-    use_user_site: bool, *, stderr: bool = False, chosen_editable: Optional[str] = None,
+    use_user_site: bool,
+    *,
+    stderr: bool = False,
+    chosen_editable: Optional[str] = None,
 ) -> None:
     """
     Opens the editable file directly and prints its contents
@@ -58,12 +61,12 @@ def _print_editable_contents(
 
 
 site_option = click.option(
-    '--user/--system',
-    'use_user_site',
+    "--user/--system",
+    "use_user_site",
     is_flag=True,
     default=True,
     show_default=True,
-    help='Pass --system to use system packages site instead of user site',
+    help="Pass --system to use system packages site instead of user site",
 )
 
 
@@ -118,7 +121,9 @@ def shared(func: Callable[..., None]) -> Callable[..., None]:
 @main.command(short_help="check easy-install.pth")
 @shared
 @site_option
-def check(*, editable_pth: Optional[str], directory: Sequence[str], use_user_site: bool) -> None:
+def check(
+    *, editable_pth: Optional[str], directory: Sequence[str], use_user_site: bool
+) -> None:
     """
     If the order specified in your easy-install.pth doesn't match
     the order of the directories specified as positional arguments,
@@ -135,17 +140,23 @@ def check(*, editable_pth: Optional[str], directory: Sequence[str], use_user_sit
     """
     dirs = absdirs(directory)
     try:
-        Editable(location=editable_pth, use_user_site=use_user_site).assert_ordered(dirs)
+        Editable(location=editable_pth, use_user_site=use_user_site).assert_ordered(
+            dirs
+        )
     except ReorderEditableError as exc:
         click.echo("Error: " + str(exc))
-        _print_editable_contents(stderr=True, chosen_editable=editable_pth, use_user_site=use_user_site)
+        _print_editable_contents(
+            stderr=True, chosen_editable=editable_pth, use_user_site=use_user_site
+        )
         sys.exit(1)
 
 
 @main.command(short_help="reorder easy-install.pth")
 @shared
 @site_option
-def reorder(*, editable_pth: Optional[str], directory: Sequence[str], use_user_site: bool) -> None:
+def reorder(
+    *, editable_pth: Optional[str], directory: Sequence[str], use_user_site: bool
+) -> None:
     """
     If the order specified in your easy-install.pth doesn't match
     the order of the directories specified as positional arguments,
@@ -169,7 +180,9 @@ def reorder(*, editable_pth: Optional[str], directory: Sequence[str], use_user_s
         Editable(location=editable_pth, use_user_site=use_user_site).reorder(dirs)
     except ReorderEditableError as exc:
         click.echo("Error: " + str(exc))
-        _print_editable_contents(stderr=True, chosen_editable=editable_pth, use_user_site=use_user_site)
+        _print_editable_contents(
+            stderr=True, chosen_editable=editable_pth, use_user_site=use_user_site
+        )
         sys.exit(1)
 
 
