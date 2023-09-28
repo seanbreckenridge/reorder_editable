@@ -18,7 +18,9 @@ class Editable:
     Encapsulates all possible interaction with the easy-install.pth file
     """
 
-    def __init__(self, *, location: Optional[str], use_user_site: bool = True) -> None:
+    def __init__(
+        self, *, location: Optional[str] = None, use_user_site: bool = True
+    ) -> None:
         """
         can optionally pass a location, to prevent the locate_editable editable call
         """
@@ -168,7 +170,7 @@ class Editable:
             system_site_packages_dirs = site.getsitepackages()
             if len(system_site_packages_dirs) != 1:
                 raise ReorderEditableError(
-                    f'Expected exactly one package in system site, got: {system_site_packages_dirs}'
+                    f"Expected exactly one package in system site, got: {system_site_packages_dirs}"
                 )
             site_packages_dir = system_site_packages_dirs[0]
 
